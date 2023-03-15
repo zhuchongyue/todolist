@@ -1,0 +1,16 @@
+{
+  "name": "@todolist/config",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "npx ts-node src/index.ts"
+  },
+  "dependencies": {
+    "add": "^2.0.6",
+    "dotenv": "^16.0.3",
+    "find-yarn-workspace-root": "^2.0.0",
+    "ts-node": "^10.9.1",
+    "yarn": "^1.22.19"
+  }
+}

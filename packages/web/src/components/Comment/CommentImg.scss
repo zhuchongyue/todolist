@@ -1,0 +1,13 @@
+.upload {
+  // border: 5px solid red;
+  .ant-upload-select {
+    width: 0 !important;
+    height: 0 !important;
+    border: 2px solid blue ;
+  }
+  // :global {
+  //   .ant-upload-select {
+  //     width: 0;
+  //   }
+  // }
+}

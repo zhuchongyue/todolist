@@ -1,0 +1,35 @@
+.ci {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  // min-height: 200px;
+  background-color: #fff;
+  padding: 10px;
+
+  &-input {
+    padding: 5px;
+    caret-color: auto;
+    outline: none;
+    min-height: 20px;
+    font-size: 16px;
+
+
+    &[placeholder]:empty:before {
+      content: attr(placeholder);
+      color: #555;
+    }
+
+    em, span {
+      font-style: normal;
+      color: blue;
+    }
+  }
+
+  &-action {
+    cursor: pointer;
+    text-align: right;
+  }
+}

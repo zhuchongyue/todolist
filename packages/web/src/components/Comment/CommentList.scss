@@ -1,0 +1,11 @@
+.cl {
+  overflow: scroll;
+  border: 5px solid darkmagenta;
+  height: 580px;
+  &-content {
+    em {
+      color: blue;
+      font-style: normal;
+    }
+  }
+}

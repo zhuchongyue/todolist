@@ -1,0 +1,11 @@
+{
+  "name": "@todolist/oss",
+  "packageManager": "yarn@3.4.1",
+  "main": "dist/index.js",
+  "dependencies": {
+    "@types/minio": "^7.0.17",
+    "@types/shelljs": "^0.8.11",
+    "minio": "^7.0.32",
+    "shelljs": "^0.8.5"
+  }
+}

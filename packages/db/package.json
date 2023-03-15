@@ -1,0 +1,17 @@
+{
+  "name": "db",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "npx ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@typegoose/typegoose": "10.1.1",
+    "@types/bcryptjs": "^2.4.2",
+    "bcryptjs": "^2.4.3",
+    "koa-swagger-decorator": "^1.8.6",
+    "mongoose": "6.9.1",
+    "ts-node": "^10.9.1"
+  }
+}
