@@ -119,6 +119,8 @@ export class Request {
     data?: any,
     config?: AxiosRequestConfig
   ): Promise<AxiosResponse<Result<T>>> {
+    console.log('url: ', url)
+    console.log('data: ', data)
     return this.instance.post(url, data, config);
   }
 

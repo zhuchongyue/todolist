@@ -29,16 +29,9 @@ export interface IUpdateTask extends ITask {
 
 // 创建task post
 export async function createTask(task: ICreateTask) {
+  console.log('createTask: ', task)
   return request.post<IUpdateTask>('/task', task)
 }
-
-// 更新 task put
-// export async function updateTask(task: IUpdateTask) {
-//   return request.put<{updated: boolean}>(`/task/${task.id}`, task)
-// }
-// export async function updateTask(task: Partial<IUpdateTask>, oldTask: Partial<IUpdateTask>) {
-//   return request.put<{ updated: boolean }>(`/task/${task.id}`, { task, oldTask })
-// }
 
 export enum ActionType {
   DELETE = 'delete',

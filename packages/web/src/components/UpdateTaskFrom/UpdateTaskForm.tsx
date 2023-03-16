@@ -95,7 +95,18 @@ export default function UpdateTaskForm(props: {
       <div>
         <Space size={'middle'} align={'center'}>
           <Tooltip title="点击完成任务">
-            <Checkbox />
+            <Checkbox checked={curTask?.status === 2} onChange={e => {
+              const status = e.target.checked ? 2 : 1
+              changeLocalTask({ status });
+              changeBackTask({
+                status
+              }, {
+                field: 'status',
+                oldValue: e.target.checked ? 1 : 2,
+                newValue: status,
+                action: ActionType.UPDATE
+              })
+            }}/>
           </Tooltip>
           <br />
           <Input.TextArea value={curTask?.title}

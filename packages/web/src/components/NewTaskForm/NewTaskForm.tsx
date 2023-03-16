@@ -78,7 +78,7 @@ function NewTaskForm(props: {
       isSub: false,
       status: 1
     }).then(res => {
-      debugger
+      
       if (res.data.id) {
         dispatch(newTask(res.data))
         props.onCancel(); //关闭
