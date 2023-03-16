@@ -34,11 +34,14 @@ docker-compose up
 ```shell
   # 1. 配置mongo, 并启动
   # 2. 配置minio, 并启动
+  # 3. 安装配置yarn2
+  
+  yarn plugin import workspace-tools
+
   yarn install
 
   yarn dev
 
+  # 接口文档：http://localhost:3000/api/swagger-html
+
 ```
-
-
-
