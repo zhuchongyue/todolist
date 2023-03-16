@@ -17,6 +17,9 @@ const defaultConfig = {
   SERVER_TOKEN_EXPIRES_TIME: 7 * 24 * 60 * 60,  // 默认7天  token过期时间 number 单位为秒
   SERVER_LOG_LEVEL: 'info',
   DB_URL: '',
+  DB_USER: '',
+  DB_PASS: '',
+  DB_NAME: '',
   OSS_HOST: 'localhost',
   OSS_API_PORT: 9000,
   OSS_CONSOLE_PROT: 9090,

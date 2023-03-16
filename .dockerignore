@@ -1,0 +1,10 @@
+
+# Docker related
+.dockerignore
+Dockerfile
+Dockerfile.*
+docker-compose.*.yml
+docker-compose.yml
+
+# other
+.DS_Store
