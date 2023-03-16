@@ -46,7 +46,7 @@ const DndRow = ({ children, ...props }: RowProps) => {
     ...props.style,
     transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
     transition,
-    ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
+    ...(isDragging ? { position: 'relative', zIndex: 1 } : {}),
   };
 
   return (

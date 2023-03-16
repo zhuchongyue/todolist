@@ -2,7 +2,7 @@
 /* user start */
 export const singupUserSchema = {
   // id: { type: "number", required: true, example: 1 },
-  name: { type: "string", required: true, example: "Tom",  desc: '用户名'  },
+  name: { type: "string", required: true, example: "Tom",  description: '用户名'  },
   password: { type: 'string', required: true, example: 'abc123' },
   avatar: { type: 'string', required: true, example: 'http://some.com/path/abc.jpg' },
   bio: { type: 'string',  example: 'A senior engineer' },

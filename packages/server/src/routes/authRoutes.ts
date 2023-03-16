@@ -1,19 +1,3 @@
-// import { SwaggerRouter } from 'koa-swagger-decorator';
-
-// import { user } from '../controller'
-
-// const authRouter = new SwaggerRouter();
-
-// authRouter.post('/users', User.createUser);
-// authRouter.swagger({
-//   title: 'api 定义',
-//   description: 'user api',
-//   version: '1.0.0'
-// })
-
-// authRouter.mapDir(__dirname)
-
-// export default authRouter
 
 import { SwaggerRouter } from "koa-swagger-decorator";
 import { User, Task, Comment } from "../controller";
@@ -26,9 +10,6 @@ const protectedRouter = new SwaggerRouter({
 
 // USER ROUTES
 protectedRouter.get("/users", User.getUsers);
-protectedRouter.get("/users/:id", User.getUser);
-protectedRouter.put("/users/:id", User.updateUser);
-protectedRouter.delete("/users/:id", User.deleteUser);
 
 // TASK ROUTES
 // protectedRouter.post('/task', Task.createTask)

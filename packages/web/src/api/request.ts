@@ -2,6 +2,14 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { store } from '@/store'
+import { message as antMessage } from "antd";
+
+antMessage.config({
+  top: 100,
+  duration: 1,
+  maxCount: 1,
+  rtl: true,
+});
 
 type Result<T> = {
   status: number;
@@ -31,6 +39,7 @@ export class Request {
       },
       (err: any) => {
         // 请求错误，这里可以用全局提示框进行提示
+        antMessage.error(err.toString())
         return Promise.reject(err);
       }
     );
@@ -49,8 +58,12 @@ export class Request {
             message = "请求错误(400)";
             break;
           case 401:
-            message = "未授权，请重新登录(401)";
-            // 这里可以做清空storage并跳转到登录页的操作
+            message = "未授权或授权失效，请重新登录(401)";
+            antMessage.error(message);
+            localStorage.clear()
+            setTimeout(() => {
+              window.location.href = '/signin'
+            }, 500)
             break;
           case 403:
             message = "拒绝访问(403)";
@@ -83,12 +96,6 @@ export class Request {
             message = `连接出错(${err.response.status})!`;
         }
         // 这里错误消息可以使用全局弹框展示出来
-        // 比如element plus 可以使用 ElMessage
-        // ElMessage({
-        //   showClose: true,
-        //   message: `${message}，请检查网络或联系管理员！`,
-        //   type: "error",
-        // });
         // 这里是AxiosError类型，所以一般我们只reject我们需要的响应即可
         return Promise.reject(err.response);
       }
