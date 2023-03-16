@@ -12,12 +12,16 @@ export class MinioClient {
     console.log('oss constructor exec')
 
     const mergeOptions = Object.assign({}, {
-      endPoint: config.OSS_HOST,
+      endPoint: process.env.OSS_HOST || config.OSS_HOST,
       port: typeof config.OSS_API_PORT === 'string' ? parseInt(config.OSS_API_PORT) : config.OSS_API_PORT,
       useSSL: false,
       accessKey: config.OSS_USER,
       secretKey: config.OSS_PASSWORD
     }, options)
+
+    console.log('----------------------------------------------------')
+    console.log('Minio client mergeOptions: ', mergeOptions)
+    console.log('----------------------------------------------------')
 
     this.client = new Minio.Client(mergeOptions)
     this.defaultBucketName = options?.defaultBucketName ? options?.defaultBucketName  : config.OSS_BUCKET_NAME

@@ -4145,7 +4145,6 @@ __metadata:
     reflect-metadata: ^0.1.13
     ts-node: ^10.9.1
     tsconfig-paths: ^4.1.2
-    typegoose: ^5.9.1
     typeorm: ^0.3.12
     winston: ^3.8.2
   languageName: unknown
@@ -16804,17 +16803,6 @@ __metadata:
   dependencies:
     is-typedarray: ^1.0.0
   checksum: 99c11aaa8f45189fcfba6b8a4825fd684a321caa9bd7a76a27cf0c7732c174d198b99f449c52c3818107430b5f41c0ccbbfb75cb2ee3ca4a9451710986d61a60
-  languageName: node
-  linkType: hard
-
-"typegoose@npm:^5.9.1":
-  version: 5.9.1
-  resolution: "typegoose@npm:5.9.1"
-  dependencies:
-    reflect-metadata: ^0.1.13
-  peerDependencies:
-    mongoose: ^5.6.7
-  checksum: e3ad3a19b07be3cadc4518c83ccc261a85d1162b11555760576dde102720c78b08749198313fea5fa1d4774dbd3470e94b7b42cf74e2e7fca8328ee1c389d95c
   languageName: node
   linkType: hard
 

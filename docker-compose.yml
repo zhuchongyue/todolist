@@ -1,4 +1,4 @@
-version: '3'
+version: '3.9'
 
 services:
   minio:
@@ -9,22 +9,24 @@ services:
       - "9000"
       - "9090"
     ports:
-      - 9090:9090
-      - 9000:9000
+      - "9090:9090"
+      - "9000:9000"
     volumes:
       - ${DATA_PATH}/.data/minio/data:/data
       - ${DATA_PATH}/.data/minio/config:/root/.minio
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_ROOT_USER=${OSS_USER}
+      - MINIO_ROOT_PASSWORD=${OSS_PASSWORD}
     networks:
       - todolist
 
-  monogodb:
+  mongodb:
     image: mongo
     restart: always
+    expose:
+      - "27017"
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
       - ${DATA_PATH}/.data/mongo/data:/data
     environment:
@@ -33,6 +35,25 @@ services:
     networks:
       - todolist
 
+  todolist:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      cache_from:
+        - node:18.14.2-alpine3.17
+    volumes: # 开始使用，正常情况不应该存在
+      - ./packages:/app/packages
+    environment:
+      - OSS_HOST=minio
+      - DB_URL=mongodb://mongodb:27017
+    ports:
+      - "3000:3000"
+      - "${SERVER_PROT}:${SERVER_PROT}"
+    depends_on:
+      - mongodb
+      - minio
+    networks:
+      - todolist
 
 networks:
   todolist:

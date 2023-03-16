@@ -8,7 +8,7 @@ export { default as CommentModel, Comment } from './models/comment';
 export { default as HistoryModel, History } from './models/history'
 
 export async function init() {
-  await mongoose.connect(config!.DB_URL, {
+  await mongoose.connect(process.env.DB_URL || config!.DB_URL, {
     dbName: config.DB_NAME,
     user: config.DB_USER,
     pass: config.DB_PASS

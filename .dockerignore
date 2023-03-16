@@ -1,10 +1,15 @@
 
+node_modules
+
 # Docker related
 .dockerignore
 Dockerfile
 Dockerfile.*
 docker-compose.*.yml
 docker-compose.yml
+
+
+yarn.lock
 
 # other
 .DS_Store
