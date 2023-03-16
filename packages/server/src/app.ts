@@ -24,5 +24,5 @@ app.use(jwt({ secret: config.SERVER_JWT_SECRET }).unless({ path: [/^\/api\/swagg
 app.use(authRouter.routes()).use(authRouter.allowedMethods());
 
 app.listen(config!.SERVER_PROT, () => {
-  console.log(`Server running on port ${config!.SERVER_PROT}`)
+  console.info(`Server running on port ${config!.SERVER_PROT}`)
 })

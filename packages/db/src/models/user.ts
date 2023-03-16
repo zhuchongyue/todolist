@@ -42,7 +42,6 @@ export class User {
   public position?: string; // 职位 真实应用这里应该是一个关联职位表的字段
 
   public validPass(this: DocumentType<User>, pass: string) {
-    console.log('in: ', pass, this.password)
     return bcrypt.compareSync(pass, this.password )
   }
 

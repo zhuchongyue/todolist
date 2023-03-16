@@ -100,8 +100,6 @@ export default class TaskController {
     const { filters, sort } = <IListBody>ctx.request.body;
     const timeFilterKeys = ['deadTime', 'finishTime', 'createdAt', 'updatedAt'];
 
-    console.log('filters: ', filters)
-
     // @ts-ignore
     const formatFilter = Object.keys(filters).reduce((prev: any, key: FilterKeyType) => {
       let cur

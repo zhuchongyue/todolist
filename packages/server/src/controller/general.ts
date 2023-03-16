@@ -41,17 +41,10 @@ export default class GeneralController {
     @request('post', '/upload')
     @summary('通用单文件上传')
     public static async upload(ctx: Context) {
-        // minioClient.putObject()
-        // console.log('ctx requst: ', ctx.request)
-        console.log('ctx requst files: ', ctx.request.files)
-        // console.log('ctx requst file0: ', ctx.request.files[0])
         let file = ctx.request.files!['file'];
         if (Array.isArray(file)) file = file[0]
-        // const filepath = file.filepath
         try {
             const fileName = `${Date.now()}_${file.originalFilename}`;
-            console.log('minioClient: ', minioClient)
-            console.log('minioClient.putObject: ', minioClient.putObject)
             const url = await minioClient.putObject({
                 // @ts-ignore
                 file: fs.createReadStream(file.filepath),
@@ -61,7 +54,6 @@ export default class GeneralController {
                     'Content-Type': file.mimetype || 'application/octet-stream'
                 }
             })
-            console.log('upload 123')
             ctx.body = {
                 status: 200,
                 url
@@ -110,12 +102,10 @@ export default class GeneralController {
         if (!user) {
             ctx.throw({ message: '用户不存在!' })
         }
-        console.log('123')
         const isRightPass = user.validPass(password)
         if (!isRightPass) {
             ctx.throw({ message: '密码错误!' })
         }
-        console.log('456')
         const token = genToken(user.username, user.id)
         ctx.status = 200
         ctx.body = {

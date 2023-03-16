@@ -8,9 +8,6 @@ export class MinioClient {
   private defaultBucketName: string
 
   constructor(options?: Minio.ClientOptions & { defaultBucketName: string}) {
-
-    console.log('oss constructor exec')
-
     const mergeOptions = Object.assign({}, {
       endPoint: process.env.OSS_HOST || config.OSS_HOST,
       port: typeof config.OSS_API_PORT === 'string' ? parseInt(config.OSS_API_PORT) : config.OSS_API_PORT,
@@ -19,17 +16,12 @@ export class MinioClient {
       secretKey: config.OSS_PASSWORD
     }, options)
 
-    console.log('----------------------------------------------------')
-    console.log('Minio client mergeOptions: ', mergeOptions)
-    console.log('----------------------------------------------------')
-
     this.client = new Minio.Client(mergeOptions)
     this.defaultBucketName = options?.defaultBucketName ? options?.defaultBucketName  : config.OSS_BUCKET_NAME
     this.createBucket()
   }
 
   async createBucket(name?: string) {
-    console.log('oss createBucket')
     const bucketName = name ? name : this.defaultBucketName;
 
     const exsit = await this.client.bucketExists(bucketName);
@@ -87,7 +79,6 @@ export class MinioClient {
     metaData?: any;
     bucKetName?: string;
   }) {
-    console.log('oss pubObject')
     const bucketName = params.bucKetName ? params.bucKetName : this.defaultBucketName;
     try {
        // @ts-ignore
