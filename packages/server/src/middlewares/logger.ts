@@ -7,11 +7,7 @@ const logger = (winstonInstance: any): any  => {
     winstonInstance.configure({
         level: config.debugLogging ? "debug" : "info",
         transports: [
-            //
-            // - Write all logs error (and below) to `error.log`.
-            new transports.File({ filename: path.resolve(__dirname, "../error.log"), level: "error" }),
-            //
-            // - Write to all logs with specified level to console.
+            new transports.File({ filename: path.resolve(__dirname, "../../error.log"), level: "error" }),
             new transports.Console({
                 format: format.combine(
                     format.colorize(),
