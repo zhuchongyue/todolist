@@ -12,7 +12,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { Link as RouterLink } from 'react-router-dom';
-import { FormControl, InputLabel, MenuItem, Select, TextareaAutosize } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 // import { uploadFile } from '@/api/request';
 import { upload, signup } from '@/api';
 import { useNavigate } from 'react-router-dom';
@@ -38,8 +38,6 @@ export default function SignUp() {
   const [avatar, setAvatar] = useState('')
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     const data = new FormData(event.currentTarget);
-    console.log(data.values())
-    console.log(data.entries())
     signup({
       username: data.get('username') as string,
       password: data.get('password') as string,
@@ -54,11 +52,8 @@ export default function SignUp() {
     event.preventDefault();
   };
 
-
   const fileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files![0]
     upload(e.target.files![0]).then(res => {
-      console.log('res: ', res)
       setAvatar(res.data.url)
     })
   }

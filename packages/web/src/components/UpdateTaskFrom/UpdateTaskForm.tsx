@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, Button, Checkbox, Col, Input, Progress, Row, Space, Tag, Tooltip, Typography, UploadFile as UploadFileType } from 'antd';
-import { AlignLeftOutlined, CalendarOutlined, InfoCircleOutlined, LinkOutlined, NodeExpandOutlined, PlusCircleOutlined, RightOutlined, UserAddOutlined, UsergroupAddOutlined, UserOutlined } from '@ant-design/icons';
+import { AlignLeftOutlined, CalendarOutlined, LinkOutlined, NodeExpandOutlined, RightOutlined, UserAddOutlined, UsergroupAddOutlined, UserOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import DatePicker, { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
 import locale from 'antd/es/date-picker/locale/zh_CN';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { changeCurTask, changeOneTask, curTaskSelector, setCurTask, tasksSelector } from '@/store/task/taskSlice';
+import { changeCurTask, curTaskSelector } from '@/store/task/taskSlice';
 import { ActionType, createTask, ICreateTask, IUpateMeta, IUpdateTask, updateTask } from '@/api';
 import PopUserList from '../PopUserList/PopUserList';
 import UploadFile from '@/components/Upload/Upload';
@@ -27,28 +27,13 @@ export default function UpdateTaskForm(props: {
   const curTask = useAppSelector(curTaskSelector);
   const user = useAppSelector(userSelector);
   const [initTask, setInitTask] = useState<IUpdateTask | null>(JSON.parse(JSON.stringify(curTask)));
-  // const [task, setTask] = useState<IUpdateTask | null>(JSON.parse(JSON.stringify(curTask)));
   useEffect(() => {
-    
-    // if (curTask && task && (task?.id !== curTask?.id)) {
-    //   dispatch(changeOneTask(task))
-    // }
-    console.log('change initTask...')
     setInitTask(JSON.parse(JSON.stringify(curTask)))
-    // setTask(JSON.parse(JSON.stringify(curTask)))
   }, [curTask?.id])
-
-  // const file = {
-  //   status: 'done',
-  //   name: name!,
-  //   uid: name!,
-  //   url: citem.content,
-  //   thumbUrl: citem.content
-  // };
+  
   const [attaches, setAttaches] = useState<UploadFileType[]>([]);
 
   const disabledDate: RangePickerProps['disabledDate'] = (current) => {
-    // Can not select days before today and today
     return current && current < dayjs().startOf('day');
   };
 
@@ -78,9 +63,6 @@ export default function UpdateTaskForm(props: {
     }
 
     dispatch(changeCurTask({...curTask!, ...{ deadTime: value!.valueOf() }}))
-    // setDeadTime(value.valueOf() as number)
-    console.log('Selected Time: ', value);
-    console.log('Formatted Selected Time: ', dateString);
   };
 
   const onOk = (value: DatePickerProps['value'] | RangePickerProps['value']) => {
@@ -95,33 +77,6 @@ export default function UpdateTaskForm(props: {
     updateTask({ ...updatePartial, ...{ id: curTask?.id }}, meta).then(res => {
 
     })
-  }
-
-  const changeBackTask1 = (key: keyof IUpdateTask, value: any, meta: {
-    action: 'string'
-  }) => {
-
-    if (value === initTask![key]) {
-      return;
-    }
-
-    // if (options) {
-    //   if (options.value === initTask![key]) {
-    //     return
-    //   }
-    // } else {
-    //   if (curTask![key] === initTask![key]) {
-    //     return
-    //   }
-    // }
-
-    // const newTask = { [key]: options ? options.value : curTask![key], id: curTask?.id }
-    // const oldTask = { [key]: initTask![key] }
-
-    // console.log('newTask: ', newTask)
-
-    // updateTask(newTask, oldTask).then(res => {
-    // })
   }
 
   const [newSubTask, setNewSubTask] = useState<ICreateTask>({
@@ -320,17 +275,15 @@ export default function UpdateTaskForm(props: {
               ?
               <>
                 {
-                  curTask.followers.map(user => {
+                  curTask.followers.map(user => 
                     <Tag closable onClose={(e) => {
-                      // e.preventDefault()
                       changeLocalTask({
                         owner: null
                       })
-                      // changeBackTask('owner', { value: null })
                     }}>
                       {user.username}
                     </Tag>
-                  })
+                  )
                 }
               </>
               :
@@ -338,12 +291,10 @@ export default function UpdateTaskForm(props: {
                 changeLocalTask({
                   owner: user
                 });
-                // changeBackTask('owner', { value: user.id });
               }}>
                 <Button type="text">添加关注人</Button>
               </PopUserList>
           }
-
         </Space>
       </div>
     </Space>

@@ -5,11 +5,10 @@ import { fetchUserList } from '@/store/user/userSlice';
 import NewTaskForm from '@/components/NewTaskForm/NewTaskForm';
 
 import { BookOutlined, HistoryOutlined, DeleteOutlined, MenuOutlined } from '@ant-design/icons'
-import { DatePicker, Button, Table, Drawer, Tooltip, Space, Modal, Card, Row, Col, Select, Typography, Checkbox, Spin } from 'antd';
+import { Button, Table, Drawer, Tooltip, Space, Modal, Card, Typography, Checkbox, Spin } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { TableRowSelection } from 'antd/es/table/interface';
 import { changeTasks, curTaskSelector, delOneTask, fetchTasks, loadingTasksSelector, setCurTask, tasksSelector } from '@/store/task/taskSlice';
-import { dargDropOrder, deleteTask, ICreateTask, IUpdateTask } from '@/api';
+import { dargDropOrder, deleteTask, IUpdateTask } from '@/api';
 import History from '@/components/History/History';
 import Comment from '@/components/Comment/Comment';
 import UpdateTaskForm from '@/components/UpdateTaskFrom/UpdateTaskForm';
@@ -25,8 +24,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import Filter, { IFilter } from '@/components/HomeFilter/HomeFilter';
 import './Home.scss'
-const { RangePicker } = DatePicker;
-const { Title, Text } = Typography;
+const { Text } = Typography;
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;
 }
@@ -90,13 +88,10 @@ function HomePage() {
 
   useEffect(() => {
     dispatch(fetchUserList())
-    
   }, []);
 
   useEffect(() => {
     setOpenDarg(filter.sort === 'order')
-    // console.log('home filter: ', filter)
-    const { sort, ...filterOpts} = filter;
     dispatch(fetchTasks(filter))
   }, [filter])
 
@@ -221,8 +216,6 @@ function HomePage() {
   const onDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
     if (!over) return; // 容错
-    console.log('active: ',active );
-    console.log('over: ', over );
     if (active.id !== over?.id) {
 
       const overIndex: number = over?.data.current!.sortable.index;

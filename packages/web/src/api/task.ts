@@ -1,6 +1,5 @@
 import { IFilter } from "@/components/HomeFilter/HomeFilter";
 import { IUser } from "@/store/user/userSlice";
-import { RangePickerProps } from "antd/es/date-picker";
 import request from "./request";
 
 export interface ITask {
@@ -94,8 +93,6 @@ export async function listTask(data?: {
       return Object.assign(prev, { [key]: filters[key] })
     }, {})
   }
-
-  console.log('listTask: ', data)
 
   return request.post<IUpdateTask[]>('/tasks', data).then(res => res.data)
 }

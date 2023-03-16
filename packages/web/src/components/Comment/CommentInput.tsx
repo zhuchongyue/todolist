@@ -1,10 +1,10 @@
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 import './CommentInput.scss';
 import Mention from '@/components/Mention/Mention';
 import { useAppSelector } from '@/store/hooks';
 import { IUser, userSelector, usersSelector } from '@/store/user/userSlice';
-import { Button, Divider, Space, Tooltip, UploadFile as UploadFileType } from 'antd';
+import { Divider, Space, Tooltip, UploadFile as UploadFileType } from 'antd';
 import { FileImageOutlined, LinkOutlined, SendOutlined } from '@ant-design/icons';
 import CommentImg from './CommentImg';
 import UploadFile from '../Upload/Upload';
@@ -17,13 +17,6 @@ export default function CommentInput() {
   const users = useAppSelector(usersSelector)
   const userId = useAppSelector(userSelector).id!
   const inputRef = useRef<HTMLDivElement>(null)
-  // const [openMention, setOpenMention] = useState(false)
-
-  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    debugger
-    console.log(e.target)
-  }
-
 
   let anchorNode: Node | null | undefined; // 当前的光标 所在的TextNode 
 
@@ -55,14 +48,10 @@ export default function CommentInput() {
 
   const handleSelectAtMember = (member: IUser) => {
 
-    const selection = document.getSelection()
-    console.log('handleSelectAtMember anchorNode: ', selection?.anchorNode)
-
     const nodes = Array.prototype.slice.call(inputRef.current!.childNodes)
     const textNodes = nodes.filter(n => n.nodeType === 3);
     textNodes.map(tn => tn.nodeValue = tn.nodeValue?.replace(`@${at.content}`, '') || '')
 
-    // console.log('handleSelectAtMember: ', anchorNode)
     // // @ts-ignore
     // anchorNode.nodeValue = '123'
     const mentionNode = document.createElement('em');
@@ -74,33 +63,12 @@ export default function CommentInput() {
     const spaceNode = document.createTextNode(' ');
     inputRef.current!.appendChild(spaceNode);
 
-    // inputRef.current?.focus();
-
-    // var range = window.getSelection(); //创建range
-    //         range?.selectAllChildren(inputRef.current!); //range 选择obj下所有子内容
-    //         range?.collapseToEnd(); //光标
     resetAt()
-    // inputRef.current?.focus()
-
-    // const username = member.username
-    // const newMsg = msg.substring(0, inputIndex) + `${username} ` + msg.substring(inputIndex + `@${at.content}`.length)
-    // // setMsg(msg.replace(`@${at.content}`, `@${username} `))
-    // setMsg(newMsg)
-    // resetFlagAt(username)
-
-    // textAreaRef.current?.focus()
   }
 
   const handleKeyup = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    // console.log('inputRef.current?.selectionStart: ', inputRef.current?.onselectstart)
-    // console.log(document.getSelection())
     const selection = document.getSelection()
     anchorNode = selection?.anchorNode;
-    // console.log('handleKeyup anchorNode: ', anchorNode)
-    // if (anchorNode) {
-    //   anchorNode.nodeValue = anchorNode.nodeValue!.replace('L', '0')
-    // }
-
 
     if (e.key === 'Enter') {
       if (inputRef.current!.innerHTML === '') {
@@ -119,14 +87,12 @@ export default function CommentInput() {
       }
 
       if (e.key === ' ') { // 空格，退出@计算
-        console.log('空格，退出@计算 ')
         resetFlagAt()
         return
       }
 
       const matchAt = /@([^ ]*)/.exec(text);
       if (matchAt) {
-        // const cache = [...at.cache]
         setAt({ open: true, content: matchAt[1] })
       }
     }
@@ -149,6 +115,7 @@ export default function CommentInput() {
           mentionId: n.dataset.id!
         })
       }
+      return undefined
     }).filter(n => !!n)
 
     return contents
@@ -165,7 +132,6 @@ export default function CommentInput() {
 
     const inputContents = handleInputContent();
     const imgContents = imgList.map(img  => {
-      debugger
       return ({
         type: CommentContentType.IMG,
         content: img.response!.url! as string,
@@ -188,26 +154,16 @@ export default function CommentInput() {
     createComment(comment)
   }
 
-  // useEffect(() => {
-  //   const cnode = document.createElement('i')
-  //   cnode.innerText = 'abcdefg'
-  //   inputRef.current?.append(cnode)
-  // }, [])
-  
-
   return (
     <div className='ci'>
-      {/* <Button onClick={() => setOpenMention(true)}>open</Button>  openChange={open => setOpenMention(open)}  */}
       <Mention filter={at.content} members={users} open={at.open} onSelectedMember={handleSelectAtMember}>
         <div className='fake-input'></div>
       </Mention>
       <div
         ref={inputRef} className='ci-input'
         contentEditable placeholder="输入评论"
-        // onInput={(e) => handleInput(e)}
         onKeyUp={e => handleKeyup(e)}
       >
-        {/* <span contentEditable="false">default</span> */}
       </div>
       <div className='ci-files'>
         {/* @ts-ignore */}

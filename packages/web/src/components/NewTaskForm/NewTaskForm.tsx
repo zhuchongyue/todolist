@@ -6,7 +6,7 @@ import { IUser, userSelector } from '@/store/user/userSlice';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 import locale from 'antd/es/date-picker/locale/zh_CN';
-import type { UploadProps, UploadFile as UploadFileType, } from 'antd';
+import type { UploadFile as UploadFileType, } from 'antd';
 import { createTask, ICreateTask } from '@/api';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { AlignLeftOutlined, CalendarOutlined, LinkOutlined, NodeExpandOutlined, RightOutlined, UserAddOutlined, UsergroupAddOutlined, UserOutlined } from '@ant-design/icons';
@@ -48,9 +48,6 @@ function NewTaskForm(props: {
     dateString: [string, string] | string,
   ) => {
     setDeadTime(value as Dayjs)
-    console.log('Selected Time: ', value);
-    console.log('Selected Time valueof : ', value?.valueOf());
-    console.log('Formatted Selected Time: ', dateString);
   };
 
   const onOk = (value: DatePickerProps['value'] | RangePickerProps['value']) => {
