@@ -45,3 +45,12 @@ docker-compose up
   # 接口文档：http://localhost:3000/api/swagger-html
 
 ```
+
+## TODO
+- [x] 拖拽排序
+- [x] 评论（支持@、图片、附件）
+- [x] 操作历史
+- [x] 任务状态
+- [ ] 子任务管理
+- [ ] server token 过期
+
