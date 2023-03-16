@@ -9,15 +9,15 @@ export enum ActionType {
 
 export function recodeAction(type: ActionType, doc: string = 'Task') {
   return async (ctx: Context, next: () => Promise<any>) => {
-    console.log('recodeAction')
+    
     await next()
     const userId = ctx.state?.user?.id
+    // @ts-ignore
+    const taskId = ctx.params.id || ctx.body.id;
+    console.log('recodeAction--------------------', taskId)
     console.log(ctx.body)
     console.log(ctx.state)
-
     if (type === ActionType.CREATE) {
-      // @ts-ignore
-      const taskId = ctx.body.id;
       HistoryModel.create({
         operator: userId,
         targetDoc: doc,
@@ -27,12 +27,26 @@ export function recodeAction(type: ActionType, doc: string = 'Task') {
     }
 
     if (type === ActionType.DELETE) {
-      const taskId = ctx.params.id;
+      
       HistoryModel.create({
         operator: userId,
         targetDoc: doc,
         action: type,
         target: taskId
+      })
+    }
+
+    if (type === ActionType.UPDATE) {
+      console.log('recodeAction update....')
+      const meta = ctx.request.body.meta
+      HistoryModel.create({
+        operator: userId,
+        targetDoc: doc,
+        action: meta.action || type,
+        target: taskId,
+        field: meta.field,
+        oldValue: meta.oldValue,
+        newValue: meta.newValue
       })
     }
   }

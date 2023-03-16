@@ -19,16 +19,21 @@ export const downloadFile = (params: { url: string, filename: string, target?: b
 }
 
 
-export function formatTime(time?: string) {
+export function formatTime(time?: number | string, formatString?: string) {
 
-  if (!time) return ''
+  if (!time) return '-'
 
-  const timetamp = new Date(time).getTime()
+  const timetamp = typeof time === 'number' ? time : new Date(time).getTime()
   const now = Date.now()
 
   const HOUR_GAP = 24 * 60 * 60 * 1000; // 大于一天
   
-  const gap = now - timetamp 
-  
-  return gap > HOUR_GAP ? moment(timetamp).format('MM月DD日 HH:mm') : moment(timetamp).format('HH:mm') 
+  const gap = timetamp  - now;
+  const format = formatString
+    ? formatString
+    : gap > HOUR_GAP
+      ? 'MM月DD日 HH:mm'
+      : 'HH:mm'
+
+  return moment(timetamp).format(format)
 }

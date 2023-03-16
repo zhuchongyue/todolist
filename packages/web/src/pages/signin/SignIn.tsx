@@ -42,19 +42,6 @@ export default function SignInPage() {
     })).then(res => {
       navigate('/')
     })
-
-    //  login(data.get('username') as string, data.get('password') as string)
-    //  .then(res => {
-    //   debugger
-    //   // 重连 带上认证信息
-    //   reconnectAfterAuth(res)
-    //   dispatch(setToken(res.token))
-    //   dispatch(setUsername(res.username))
-    //   dispatch(setUserId(res.id))
-    //   dispatch(setAvatar(res.avatar))
-    //   navigate('/')
-    //  })
-    // dispatch
   };
 
   return (

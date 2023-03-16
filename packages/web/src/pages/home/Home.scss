@@ -4,13 +4,17 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    border: 3px solid greenyellow;
 
     &-form {
       flex-basis: 300px;
+      margin-bottom: 10px;
+      background-color: #fff;
+      padding: 20px;
     }
 
     &-comment {
+      padding: 20px;
+      background-color: #fff;
       flex: 1;
       flex-grow: 1;
     }

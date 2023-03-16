@@ -35,10 +35,10 @@ export class Task {
   public desc?: string; // 任务描述
 
   @prop()
-  public deadTime?: Date; // 截止时间
+  public deadTime?: number; // 截止时间 unix timestamp ms
 
   @prop()
-  public finishTime?: Date; // 完成时间
+  public finishTime?: number; // 完成时间
 
   @prop()
   public followers?: mongoose.Types.ObjectId; // 任务关注人

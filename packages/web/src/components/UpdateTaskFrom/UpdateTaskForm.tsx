@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Checkbox, Col, Input, Progress, Row, Space, Tag, Tooltip, Typography, UploadFile as UploadFileType } from 'antd';
+import { Avatar, Button, Checkbox, Col, Input, Progress, Row, Space, Tag, Tooltip, Typography, UploadFile as UploadFileType } from 'antd';
 import { AlignLeftOutlined, CalendarOutlined, InfoCircleOutlined, LinkOutlined, NodeExpandOutlined, PlusCircleOutlined, RightOutlined, UserAddOutlined, UsergroupAddOutlined, UserOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import DatePicker, { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
 import locale from 'antd/es/date-picker/locale/zh_CN';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { changeOneTask, curTaskSelector, setCurTask, tasksSelector } from '@/store/task/taskSlice';
-import { createTask, ICreateTask, IUpdateTask, updateTask } from '@/api';
+import { changeCurTask, changeOneTask, curTaskSelector, setCurTask, tasksSelector } from '@/store/task/taskSlice';
+import { ActionType, createTask, ICreateTask, IUpateMeta, IUpdateTask, updateTask } from '@/api';
 import PopUserList from '../PopUserList/PopUserList';
 import UploadFile from '@/components/Upload/Upload';
 import "./UpdateTaskForm.scss"
@@ -27,14 +27,16 @@ export default function UpdateTaskForm(props: {
   const curTask = useAppSelector(curTaskSelector);
   const user = useAppSelector(userSelector);
   const [initTask, setInitTask] = useState<IUpdateTask | null>(JSON.parse(JSON.stringify(curTask)));
-  const [task, setTask] = useState<IUpdateTask | null>(JSON.parse(JSON.stringify(curTask)));
+  // const [task, setTask] = useState<IUpdateTask | null>(JSON.parse(JSON.stringify(curTask)));
   useEffect(() => {
-    if (curTask && task && (task?.id !== curTask?.id)) {
-      dispatch(changeOneTask(task))
-    }
+    
+    // if (curTask && task && (task?.id !== curTask?.id)) {
+    //   dispatch(changeOneTask(task))
+    // }
+    console.log('change initTask...')
     setInitTask(JSON.parse(JSON.stringify(curTask)))
-    setTask(JSON.parse(JSON.stringify(curTask)))
-  }, [curTask])
+    // setTask(JSON.parse(JSON.stringify(curTask)))
+  }, [curTask?.id])
 
   // const file = {
   //   status: 'done',
@@ -52,11 +54,31 @@ export default function UpdateTaskForm(props: {
 
   const [deadTime, setDeadTime] = useState<Dayjs | undefined>(undefined)
 
-  const onChange = (
-    value: DatePickerProps['value'] | RangePickerProps['value'],
+  const onDeadTimeChange = (
+    value: DatePickerProps['value'],
     dateString: [string, string] | string,
   ) => {
-    setDeadTime(value as Dayjs)
+    
+    if (!value) {
+      dispatch(changeCurTask({...curTask!, ...{ deadTime: undefined }}))
+      changeBackTask({ deadTime: undefined }, { 
+        field: 'deadTime',
+        oldValue: curTask?.deadTime,
+        newValue: undefined,
+        action: ActionType.DELETE
+       })
+    } else {
+      dispatch(changeCurTask({...curTask!, ...{ deadTime: value.valueOf() }}))
+      changeBackTask({ deadTime: undefined }, { 
+        field: 'deadTime',
+        oldValue: curTask?.deadTime,
+        newValue: value.valueOf(),
+        action: curTask?.deadTime ? ActionType.UPDATE : ActionType.ADD
+       })
+    }
+
+    dispatch(changeCurTask({...curTask!, ...{ deadTime: value!.valueOf() }}))
+    // setDeadTime(value.valueOf() as number)
     console.log('Selected Time: ', value);
     console.log('Formatted Selected Time: ', dateString);
   };
@@ -66,34 +88,40 @@ export default function UpdateTaskForm(props: {
   };
 
   const changeLocalTask = (props: Partial<IUpdateTask>) => {
-    console.log('changeLocalTask: ', props, { ...task, ...props })
-    // @ts-ignore
-    setTask({ ...task, ...props });
-    console.log('task: ', task)
+    dispatch(changeCurTask({ ...curTask!, ...props }))
   }
 
-  const changeBackTask = (key: keyof IUpdateTask, options?: {
-    value: any
+  const changeBackTask = (updatePartial: Partial<IUpdateTask>, meta: IUpateMeta) => {
+    updateTask({ ...updatePartial, ...{ id: curTask?.id }}, meta).then(res => {
+
+    })
+  }
+
+  const changeBackTask1 = (key: keyof IUpdateTask, value: any, meta: {
+    action: 'string'
   }) => {
 
-    if (options) {
-      if (options.value === initTask![key]) {
-        return
-      }
-    } else {
-      if (task![key] === initTask![key]) {
-        return
-      }
+    if (value === initTask![key]) {
+      return;
     }
 
-    const newTask = { [key]: options ? options.value : task![key], id: task?.id }
-    const oldTask = { [key]: initTask![key] }
+    // if (options) {
+    //   if (options.value === initTask![key]) {
+    //     return
+    //   }
+    // } else {
+    //   if (curTask![key] === initTask![key]) {
+    //     return
+    //   }
+    // }
 
-    console.log('newTask: ', newTask)
+    // const newTask = { [key]: options ? options.value : curTask![key], id: curTask?.id }
+    // const oldTask = { [key]: initTask![key] }
 
-    updateTask(newTask, oldTask).then(res => {
-      // dispatch(setCurTask(task))
-    })
+    // console.log('newTask: ', newTask)
+
+    // updateTask(newTask, oldTask).then(res => {
+    // })
   }
 
   const [newSubTask, setNewSubTask] = useState<ICreateTask>({
@@ -115,11 +143,23 @@ export default function UpdateTaskForm(props: {
             <Checkbox />
           </Tooltip>
           <br />
-          <Input.TextArea value={task?.title}
+          <Input.TextArea value={curTask?.title}
             onBlur={(e) => {
-              changeBackTask('title')
+              const newTitle = e.target.value;
+              if (initTask?.title === newTitle) {
+                return
+              }
+              changeLocalTask({ title: newTitle})
+              changeBackTask({ title: newTitle }, {
+                field: 'title',
+                oldValue: initTask!.title,
+                newValue: newTitle,
+                action: ActionType.UPDATE
+              })
             }}
-            onChange={(e) => { changeLocalTask({ title: e.target.value }) }}
+            onChange={(e) => { 
+              changeLocalTask({ title: e.target.value }) 
+            }}
             autoSize
             size='large'
             bordered={false}
@@ -132,7 +172,17 @@ export default function UpdateTaskForm(props: {
           <Tooltip title="添加任务描述">
             <AlignLeftOutlined style={sizeStyle} />
           </Tooltip>
-          <Input.TextArea onBlur={() => changeBackTask('desc')} value={task?.desc} onChange={(e) => { changeLocalTask({ desc: e.target.value }) }} autoSize size='middle' bordered={false} placeholder='添加任务描述' />
+          <Input.TextArea 
+            onBlur={(e) => changeBackTask({
+              desc: e.target.value
+            }, {
+              field: 'desc',
+              action: curTask?.desc ? ActionType.UPDATE : ActionType.ADD,
+              oldValue: initTask?.desc,
+              newValue: e.target.value
+            })} value={curTask?.desc}
+            onChange={(e) => { changeLocalTask({ desc: e.target.value }) }}
+            autoSize size='middle' bordered={false} placeholder='添加任务描述' />
         </Space>
       </div>
       <div>
@@ -141,22 +191,33 @@ export default function UpdateTaskForm(props: {
             <UserOutlined style={sizeStyle} />
           </Tooltip>
           {
-            task?.owner ?
-              <Tag closable onClose={(e) => {
+            curTask?.owner ?
+              <Tag icon={<Avatar src={curTask?.owner?.avatar} style={{marginRight: 5}}/>} closable onClose={(e) => {
                 // e.preventDefault()
                 changeLocalTask({
-                  owner: null
+                  owner: undefined
                 })
-                changeBackTask('owner', { value: null })
+                changeBackTask({ owner: null }, { 
+                  field: 'owner',
+                  oldValue: curTask?.owner?.id,
+                  newValue: undefined,
+                  action: ActionType.DELETE
+                })
               }}>
-                {task?.owner.username}
+                {curTask?.owner.username}
               </Tag>
               :
               <PopUserList onSelectedMember={(user) => {
                 changeLocalTask({
                   owner: user
                 });
-                changeBackTask('owner', { value: user.id });
+                // @ts-ignore
+                changeBackTask({ owner: user.id }, { 
+                  field: 'owner',
+                  oldValue: undefined,
+                  newValue: user.id,
+                  action: 'add'
+                });
               }}>
                 <Button type='text'>添加负责人</Button>
               </PopUserList>
@@ -172,19 +233,19 @@ export default function UpdateTaskForm(props: {
           </Tooltip>
           <DatePicker
             placeholder='请选择截止时间'
-            value={deadTime}
+            value={curTask?.deadTime ? dayjs(curTask?.deadTime) : undefined}
             disabledDate={disabledDate}
             showToday
             locale={locale}
             popupStyle={{ zIndex: 999999999 }}
             showTime={{ minuteStep: 30, defaultValue: dayjs('18:00', 'HH:mm'), format: 'HH:mm' }}
-            onChange={onChange}
+            onChange={onDeadTimeChange}
             onOk={onOk}
           />
         </Space>
       </div>
       <div>
-        <Space size={'middle'} style={{ 'width': '100%' }}>
+        <Space size={'middle'} align='baseline' style={{ 'width': '100%' }}>
           <Tooltip title="子任务">
             <NodeExpandOutlined style={sizeStyle} />
           </Tooltip>
@@ -214,13 +275,13 @@ export default function UpdateTaskForm(props: {
                   <DatePicker
                     size='small'
                     placeholder='请选择截止时间'
-                    value={deadTime}
+                    value={curTask?.deadTime ? dayjs(curTask?.deadTime) : undefined}
                     disabledDate={disabledDate}
                     showToday
                     locale={locale}
                     popupStyle={{ zIndex: 999999999 }}
                     showTime={{ minuteStep: 30, defaultValue: dayjs('18:00', 'HH:mm'), format: 'HH:mm' }}
-                    onChange={onChange}
+                    onChange={onDeadTimeChange}
                     onOk={onOk}
                   />
                   <Tooltip title="添加负责人">
@@ -255,17 +316,17 @@ export default function UpdateTaskForm(props: {
             <UsergroupAddOutlined style={sizeStyle} />
           </Tooltip>
           {
-            (task?.followers && task?.followers.length > 0)
+            (curTask?.followers && curTask?.followers.length > 0)
               ?
               <>
                 {
-                  task.followers.map(user => {
+                  curTask.followers.map(user => {
                     <Tag closable onClose={(e) => {
                       // e.preventDefault()
                       changeLocalTask({
                         owner: null
                       })
-                      changeBackTask('owner', { value: null })
+                      // changeBackTask('owner', { value: null })
                     }}>
                       {user.username}
                     </Tag>
@@ -277,7 +338,7 @@ export default function UpdateTaskForm(props: {
                 changeLocalTask({
                   owner: user
                 });
-                changeBackTask('owner', { value: user.id });
+                // changeBackTask('owner', { value: user.id });
               }}>
                 <Button type="text">添加关注人</Button>
               </PopUserList>

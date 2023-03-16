@@ -5,15 +5,13 @@ import { fetchUserList } from '@/store/user/userSlice';
 import NewTaskForm from '@/components/NewTaskForm/NewTaskForm';
 
 import { BookOutlined, HistoryOutlined, DeleteOutlined, MenuOutlined } from '@ant-design/icons'
-import { DatePicker, Button, Table, Drawer, Tooltip, Space, Modal, Card, Row, Col, Select, Typography, Checkbox } from 'antd';
+import { DatePicker, Button, Table, Drawer, Tooltip, Space, Modal, Card, Row, Col, Select, Typography, Checkbox, Spin } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { TableRowSelection } from 'antd/es/table/interface';
-
-import { changeTasks, curTaskSelector, delOneTask, fetchTasks, setCurTask, tasksSelector } from '@/store/task/taskSlice';
+import { changeTasks, curTaskSelector, delOneTask, fetchTasks, loadingTasksSelector, setCurTask, tasksSelector } from '@/store/task/taskSlice';
 import { dargDropOrder, deleteTask, ICreateTask, IUpdateTask } from '@/api';
 import History from '@/components/History/History';
 import Comment from '@/components/Comment/Comment';
-import './Home.scss'
 import UpdateTaskForm from '@/components/UpdateTaskFrom/UpdateTaskForm';
 import { formatTime } from '@/utils';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -26,11 +24,9 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Filter, { IFilter } from '@/components/HomeFilter/HomeFilter';
-
+import './Home.scss'
 const { RangePicker } = DatePicker;
-
 const { Title, Text } = Typography;
-
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;
 }
@@ -81,12 +77,15 @@ function HomePage() {
 
   const tasks = useAppSelector(tasksSelector)
   const curTask = useAppSelector(curTaskSelector)
+  const loadingTasks = useAppSelector(loadingTasksSelector)
 
   const [filter, setFilter] = useState<IFilter>({
     status: undefined,
-    owners: [],
-    creators: [],
-    sort: '-createdAt'
+    owner: [],
+    creator: [],
+    sort: '-createdAt',
+    finishTime: undefined,
+    deadTime: undefined
   })
 
   useEffect(() => {
@@ -95,6 +94,9 @@ function HomePage() {
   }, []);
 
   useEffect(() => {
+    setOpenDarg(filter.sort === 'order')
+    // console.log('home filter: ', filter)
+    const { sort, ...filterOpts} = filter;
     dispatch(fetchTasks(filter))
   }, [filter])
 
@@ -173,6 +175,12 @@ function HomePage() {
     //   key: 'followers'
     // },
     {
+      title: '完成时间',
+      dataIndex: 'finishTime',
+      key: 'finishTime',
+      render: (_, { finishTime }) => (<>{formatTime(finishTime)}</>)
+    },
+    {
       title: '创建时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
@@ -196,6 +204,7 @@ function HomePage() {
       if (columns[0].key !== 'sort') {
         setColumns([
           {
+            fixed: 'left',
             key: 'sort',
             width: 60,
             title: '拖拽'
@@ -247,19 +256,18 @@ function HomePage() {
           dispatch(changeTasks(sort(tasks)))
         }
       })
-      // console.log('sort tasks: ', sort(tasks))
     }
   };
   return (
     <Card title="TODOLIST" className="home"
+      style={{margin: '10px 20px'}}
       extra={<Button type={'primary'} onClick={() => setOpenAddDialog(true)}>新建</Button>}
     >
       <Filter filter={filter} filterChange={(filter) => setFilter(filter)}/>
-      openDrag: {String(openDrag)}
-      <Button onClick={() => setOpenDarg(!openDrag)}>open drag</Button>
+        
+      <Spin spinning={loadingTasks}>
       <DndContext onDragEnd={onDragEnd}>
         <SortableContext
-          // rowKey array
           items={tasks.map((i) => i.id)}
           strategy={verticalListSortingStrategy}
         >
@@ -284,18 +292,19 @@ function HomePage() {
           />
         </SortableContext>
       </DndContext>
+      </Spin>
 
       <Drawer
-        zIndex={999999}
+        // zIndex={999999}
         width={600}
         open={openDrawer}
         onClose={() => {
           setOpenDrawer(false);
           dispatch(setCurTask(null))
         }}
-        title={`ID: ${curTask?.title || ''}`}
+        title={`ID: ${curTask?.id || ''}`}
         extra={
-          <Space>
+          <Space size={'large'}>
             <Tooltip title="关注">
               <BookOutlined />
             </Tooltip>
@@ -308,6 +317,7 @@ function HomePage() {
           </Space>
         }
         mask={false}
+        bodyStyle={{padding: 0, background: '#eee'}}
       >
         <div className='home-task'>
           <div className='home-task-form'>
@@ -324,7 +334,8 @@ function HomePage() {
           closable={false}
           onClose={() => setHistoryDrawer(false)}
           open={historyDrawer}
-          zIndex={9999999}
+          destroyOnClose
+          // zIndex={9999999}
         >
           <History histoies={[
             {
@@ -342,11 +353,14 @@ function HomePage() {
           ]} />
         </Drawer>
       </Drawer>
-
-      <Modal zIndex={999999}  maskClosable={false} title="新建任务" open={openAddDialog} onCancel={() => setOpenAddDialog(false)}>
-        <NewTaskForm />
+      <Modal width={600} 
+        // zIndex={999999} 
+        destroyOnClose  maskClosable={false} title="新建任务" 
+        open={openAddDialog} onCancel={() => setOpenAddDialog(false)}
+        footer={null}
+        >
+        <NewTaskForm onCancel={() => setOpenAddDialog(false)} />
       </Modal>
-
     </Card>
   );
 }

@@ -5,23 +5,25 @@ import { Task, TaskModel } from '@todolist/db';
 import { request, summary, path, body, responsesAll, tagsAll, middlewares, middlewaresAll } from "koa-swagger-decorator";
 import { createTaskSchema, updateTaskSchema } from './swaggerSchemas';
 import { recodeAction, ActionType } from './middlewares';
-
-const logTime = () => async (ctx: Context, next: () => Promise<any>) => {
-  console.log(`start: ${new Date()}`);
-  await next();
-  console.log(`end: ${new Date()}`);
-};
-
+import { FilterQuery } from 'typeorm';
 
 interface IListBody {
-  sort: string;
-  filter: Partial<Task>;
+  sort: 'sort' | '-deadTime' | 'deadTime' | 'createdAt' | '-createdAt' | '-updatedAt' | 'updatedAt' | 'finishTime' | '-finishTime' | string;
+  filters: {
+    status?: 1 | 2 | undefined;
+    owners?: string[];
+    creators?: string[];
+    deadTime?: [number, number] | undefined;
+    finishTime?: [number, number] | undefined;
+  }
 }
+
+type FilterKeyType = keyof IListBody['filters']
 
 @responsesAll({ 200: { description: "success" }, 400: { description: "bad request" }, 401: { description: "unauthorized, missing/wrong jwt token" } })
 @tagsAll(["任务"])
 export default class TaskController {
- 
+
   @request('post', '/task')
   @summary('创建任务')
   @body(createTaskSchema)
@@ -29,39 +31,47 @@ export default class TaskController {
   static async createTask(ctx: Context): Promise<void> {
     const {
       title, desc, owner, attachments, creator,
-      deadTime, finishTime, followers, status
+      deadTime, followers, status
     } = <Task>ctx.request.body;
 
-    const task = await TaskModel.create({
-      creator,
-      title,
-      desc,
-      owner,
-      attachments,
-      followers
-    })
-
-    ctx.status = 200
-    ctx.body = {
-      id: task.id
+    try {
+      const task = await TaskModel.create({
+        deadTime,
+        creator,
+        title,
+        desc,
+        owner,
+        attachments,
+        followers,
+        status
+      });
+  
+      const newTask = await TaskModel.findOne({_id: task.id }) // 这里还需要重新查询一遍，因为order是生成的
+        .populate('creator', '-password -slat -id')
+        .populate('owner', '-password -slat -id')
+  
+      ctx.status = 200
+      ctx.body = newTask
+    } catch(e) {
+      ctx.throw('创建错误' + e, 500);
     }
   }
-  
+
   @request('put', '/task/{id}')
   @summary('更新任务')
   @body(updateTaskSchema)
   @path({
-    id: { type: 'string', required: true, description: '任务id'}
+    id: { type: 'string', required: true, description: '任务id' }
   })
-  // @middlewares([recodeAction(ActionType.UPDATE)])
+  @middlewares([recodeAction(ActionType.UPDATE)])
   public static async updateTask(ctx: Context) {
-    const id: string = ctx.params.id;
-    const { task, oldTask } = ctx.request.body
+    const { task } = ctx.request.body
+    const { id: _id, ...upateBody } = task
     try {
-      await TaskModel.updateOne({ _id: id }, { ...task });
+      await TaskModel.updateOne({ _id }, upateBody);
       ctx.status = 200;
       ctx.body = true;
-    } catch(e) {
+    } catch (e) {
       ctx.status = 500;
       // ctx.body = e.toString()
     }
@@ -70,51 +80,53 @@ export default class TaskController {
   @request('delete', '/task/{id}')
   @summary('删除任务')
   @path({
-    id: { type: 'string', required: true, description: '任务id'}
+    id: { type: 'string', required: true, description: '任务id' }
   })
   @middlewares([recodeAction(ActionType.DELETE)])
   public static async deleteTask(ctx: Context) {
     const id: string = ctx.params.id;
     try {
-      await TaskModel.deleteOne({_id: id})
+      await TaskModel.deleteOne({ _id: id })
       ctx.status = 200;
       ctx.body = { deleted: true };
-    } catch(e) {
+    } catch (e) {
       ctx.throw(500)
     }
   }
 
-  
-  
-
   @request('post', '/tasks') // 这里没有使用get请求，过滤参数较多
   @summary('获取任务列表')
   public static async fetchTasks(ctx: Context): Promise<void> {
-    const { filter, sort } = <IListBody>ctx.request.body;
+    const { filters, sort } = <IListBody>ctx.request.body;
     const timeFilterKeys = ['deadTime', 'finishTime', 'createdAt', 'updatedAt'];
 
-    const formatFilter = Object.keys(filter).map(key => {
+    console.log('filters: ', filters)
+
+    // @ts-ignore
+    const formatFilter = Object.keys(filters).reduce((prev: any, key: FilterKeyType) => {
+      let cur
       if (timeFilterKeys.includes(key)) {
         // @ts-ignore
-        if (filter[key] && Array.isArray(filter[key]) && filter[key].length === 2) {
-          return {[key]: 'asf' }
-        // @ts-ignore
-        } else if(Array.isArray(filter[key])) {
+        if (filters[key] && Array.isArray(filters[key]) && filters[key]?.length === 2) {
           // @ts-ignore
-          return {[key]: {$in: filter[key]}}
-        } 
-        // @ts-ignore
-        return ({[key]: filter[key]})
+          cur = { [key]: { $gt: filters[key][0], $lt: filters[key][1] } }
+        }
+      } else if (Array.isArray(filters[key])) {
+        cur = { [key]: { $in: filters[key] } }
+      } else {
+        cur = ({ [key]: filters[key] })
       }
-    })
+      return Object.assign({}, prev, cur)
+    }, {});
+
     try {
-      const tasks = await TaskModel.find(filter)
+      const tasks = await TaskModel.find(formatFilter as FilterQuery<Task>)
         .sort(sort)
         .populate('creator', '-password -slat -id')
         .populate('owner', '-password -slat -id')
       ctx.status = 200
       ctx.body = tasks
-    } catch(e) {
+    } catch (e) {
       ctx.status = 500
       ctx.throw(500)
     }
@@ -145,24 +157,24 @@ export default class TaskController {
       let nextTask, prevTask;
       if (!prev && next) {
         nextTask = await TaskModel.findById(next);
-        await TaskModel.updateOne({_id: active }, { order: nextTask!.order - parseFloat(Math.random().toFixed(2)) });
+        await TaskModel.updateOne({ _id: active }, { order: nextTask!.order - parseFloat(Math.random().toFixed(2)) });
       }
 
       if (prev && !next) {
         prevTask = await TaskModel.findById(prev)
-        await TaskModel.updateOne({_id: active }, { order: prevTask!.order + parseFloat(Math.random().toFixed(2)) });
+        await TaskModel.updateOne({ _id: active }, { order: prevTask!.order + parseFloat(Math.random().toFixed(2)) });
       }
 
       if (prev && next) {
         nextTask = await TaskModel.findById(next);
         prevTask = await TaskModel.findById(prev)
-        await TaskModel.updateOne({_id: active }, { order: (prevTask!.order + nextTask!.order) / 2 });
+        await TaskModel.updateOne({ _id: active }, { order: (prevTask!.order + nextTask!.order) / 2 });
       }
-     
+
       ctx.status = 200;
       ctx.body = { updated: true }
 
-    } catch(e) {
+    } catch (e) {
       // ctx.status = 500;
       ctx.throw('服务端排序错误: ' + e, 500)
     }

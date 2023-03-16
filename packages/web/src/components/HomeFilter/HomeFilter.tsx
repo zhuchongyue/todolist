@@ -1,17 +1,20 @@
 import { useAppSelector } from '@/store/hooks';
 import { usersSelector } from '@/store/user/userSlice';
 import { Col, DatePicker, Row, Select, Space, Typography } from 'antd';
+import { RangePickerProps } from 'antd/es/date-picker';
+import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 const { RangePicker } = DatePicker;
 
 const { Title, Text } = Typography;
 
 export interface IFilter {
-  status: 1 | 2 | undefined;
-  owners: string[];
-  creators: string[];
+  status: 1 | 2 | number | undefined;
+  owner: string[];
+  creator: string[];
   sort: 'sort' | '-deadTime' | 'deadTime' | 'createdAt' | '-createdAt' | '-updatedAt' | 'updatedAt' | 'finishTime' | '-finishTime' | string;
-
+  deadTime: RangePickerProps['value'] | undefined;
+  finishTime: RangePickerProps['value'] | undefined;
 }
 export default function HomeFilter(props: {
   filter: IFilter;
@@ -27,12 +30,7 @@ export default function HomeFilter(props: {
 
   const usersOption = [{ value: '', label: '全部' }].concat(usersOpts || [])
 
-  const [filter, setFilter] = useState<{
-    status: 1 | 2 | undefined;
-    owners: string[];
-    creators: string[];
-    sort: string;
-  }>(props.filter);
+  const [filter, setFilter] = useState<IFilter>(props.filter);
 
   useEffect(() => {
     props.filterChange(filter)
@@ -48,7 +46,7 @@ export default function HomeFilter(props: {
               value={filter.status}
               placeholder="任务状态"
               defaultValue={1}
-              // onChange={handleChange}
+              onChange={value => setFilter({...filter, ...{status: value}})}
               options={[
                 { value: 1, label: '未完成' },
                 { value: 2, label: '已完成' },
@@ -61,11 +59,11 @@ export default function HomeFilter(props: {
             <Text>负责人: </Text>
             <Select
               mode="multiple"
-              value={filter.owners}
+              value={filter.owner}
               style={{ minWidth: 100 }}
               placeholder="筛选"
               options={usersOption}
-              onChange={(values: string[]) => setFilter({ ...filter, ...{ owners: values } })}
+              onChange={(values: string[]) => setFilter({ ...filter, ...{ owner: values } })}
             />
           </div>
           <div>
@@ -74,15 +72,15 @@ export default function HomeFilter(props: {
               mode="multiple"
               style={{ minWidth: 100 }}
               placeholder="创建人"
-              value={filter.creators}
+              value={filter.creator}
               options={usersOption}
-              onChange={(values: string[]) => setFilter({ ...filter, ...{ creators: values } })}
+              onChange={(values: string[]) => setFilter({ ...filter, ...{ creator: values } })}
 
             />
           </div>
           <div>
             <Text>截止时间: </Text>
-            <RangePicker />
+            <RangePicker value={filter.deadTime} onChange={(values) => setFilter({...filter, ...{deadTime: values}})} showTime={{ format: 'HH:mm', minuteStep: 30 }}  />
             {/* <Select
               placeholder="筛选"
               defaultValue={1}
@@ -96,7 +94,7 @@ export default function HomeFilter(props: {
           </div>
           <div>
             <Text>完成时间: </Text>
-            <RangePicker />
+            <RangePicker value={filter.finishTime} onChange={(values) => setFilter({...filter, ...{finishTime: values}})} showTime={{ format: 'HH:mm', minuteStep: 30 }} />
             {/* <Select
               placeholder="筛选"
               defaultValue={1}

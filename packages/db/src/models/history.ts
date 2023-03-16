@@ -1,14 +1,13 @@
 import { getModelForClass, modelOptions, prop } from "@typegoose/typegoose";
 import mongoose from "mongoose";
 
-
 @modelOptions({
   schemaOptions: {
     toJSON: { virtuals: true},
     toObject: { virtuals: true },
     timestamps: { // 获得 createdAt（创建时间） 和 updatedAt（更新时间） 两字段【number】
       createdAt: true, 
-      updatedAt: true,
+      updatedAt: false,
       currentTime: () => Date.now()
     }
   }
@@ -31,9 +30,10 @@ export class History {
   public field?: string; // 操作的字段
 
   @prop()
-  public oldValue?: string; // 操作前 field的值
+  public oldValue?: string | number; // 操作前 field的值
 
-  @prop() newValue?: string; // 操作后的field的值
+  @prop() 
+  public newValue?: string | number; // 操作后的field的值
 
 }
 

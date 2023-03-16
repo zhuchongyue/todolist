@@ -8,7 +8,6 @@ import { wrapObjectId } from '../utils';
 export default class HistroyController {
 
   @request('get', '/histories/{targetDoc}/{target}')
-  
   @path({
     targetDoc: { type: 'string', required: true, description: '目标对象名称（表名）'},
     target: { type: 'string', required: true, description: '任务id'}
@@ -18,7 +17,9 @@ export default class HistroyController {
 
     const histories = await HistoryModel.find({
       targetDoc, target
-    });
+    })
+    .populate('operator', '-password -slat')
+    .sort('-createdAt')
 
     ctx.status = 200;
     ctx.body = histories;

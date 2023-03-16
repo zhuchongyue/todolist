@@ -32,7 +32,7 @@ protectedRouter.delete("/users/:id", User.deleteUser);
 
 // TASK ROUTES
 // protectedRouter.post('/task', Task.createTask)
-protectedRouter.put('/task/:id', Task.updateTask)
+// protectedRouter.put('/task/:id', Task.updateTask)
 
 // COMMENT ROUTES
 protectedRouter.post('/comment', Comment.createComment)
@@ -45,6 +45,7 @@ protectedRouter.swagger({
     description: `todolist is an node + typescript + koa + minio + mongodb project.\n
         说明：\n
         1. 所以涉及到id的字段，均指代mongodb objectId ，前端表现为string类型
+        2. 所有时间全部为unix timestampe ms 【number类型】
     `,
     version: "0.0.1"
 });
