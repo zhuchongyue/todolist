@@ -2,13 +2,17 @@ import { useAppSelector } from '@/store/hooks';
 import { userSelector } from '@/store/user/userSlice';
 import { message } from 'antd';
 import React, { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, matchRoutes } from 'react-router-dom';
 
 const AuthRoute = ({ children, auth }: {children: React.ReactNode, auth: boolean }) => {
 
   const navigate = useNavigate();
   const token = useAppSelector(userSelector).token;
   const location = useLocation();
+
+  // const mathchs = matchRoutes(routers, location);
+
+  // const isExist = mathchs?.some((item) => item.pathname == location.pathname);
 
   useEffect(() => {
     if (!token && auth) {

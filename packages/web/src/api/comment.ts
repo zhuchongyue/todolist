@@ -26,6 +26,7 @@ export interface ICreatedComment {
   task: string;
   user: IUser;
   contents: Array<ICreateCommentContent>;
+  createdAt: number;
 }
 
 export async function createComment(data: ICreateComment) {

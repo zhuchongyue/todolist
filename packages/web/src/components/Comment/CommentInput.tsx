@@ -73,10 +73,11 @@ export default function CommentInput(props: {
     anchorNode = selection?.anchorNode;
 
     if (e.key === 'Enter') {
-      if (inputRef.current!.innerHTML === '') {
-        return
-      }
-      inputRef.current!.innerHTML = '';
+      handleSendComment()
+      // if (inputRef.current!.innerHTML === '') {
+      //   return
+      // }
+      // inputRef.current!.innerHTML = '';
     } else if (e.key === '@') {
       // setOpenMention(true)
       openFlatAt()
@@ -143,7 +144,9 @@ export default function CommentInput(props: {
   }
 
   const handleSendComment = () => {
-
+    if (imgList.length == 0 && attaches.length === 0 && inputRef.current?.textContent?.length === 0) {
+      return;
+    }
     const inputContents = handleInputContent();
     const imgContents = imgList.map(img => {
       return ({
@@ -169,7 +172,7 @@ export default function CommentInput(props: {
       if (res.data.id) {
         clearContent()
         // @ts-ignore
-        props.onSentComment(Object.assign(comment, { id: res.data.id, user }))
+        props.onSentComment(Object.assign(comment, { id: res.data.id, user, createdAt: new Date().toString() }))
       }
     })
   }

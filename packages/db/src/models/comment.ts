@@ -1,7 +1,17 @@
 import { DocumentType, getModelForClass, pre, prop, buildSchema, modelOptions } from '@typegoose/typegoose';
-import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import mongoose from 'mongoose';
 
+// @modelOptions({
+//   schemaOptions: {
+//     toJSON: { virtuals: true},
+//     toObject: { virtuals: true },
+//     timestamps: {
+//       createdAt: false, 
+//       updatedAt: false,
+//       currentTime: () => Date.now()
+//     }
+//   }
+// })
 class CommentContent {
   @prop({ required: true, enum: [1, 2, 3, 4], default: 1})
   public type!: number;   // 评论内容类型 1.text 2 mention(@) 3. image 4.file
@@ -19,11 +29,11 @@ class CommentContent {
     toJSON: { virtuals: true},
     toObject: { virtuals: true },
     timestamps: {
-      createdAt: true,
-      updatedAt: true,
+      createdAt: true, 
+      updatedAt: false,
       currentTime: () => Date.now()
     }
-  },
+  }
 })
 export class Comment {
 

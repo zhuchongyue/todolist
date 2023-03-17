@@ -4,6 +4,7 @@ import { Avatar, Image, List, Space, UploadFile } from "antd";
 import { Divider, Typography } from 'antd';
 import UploadFileList  from '@/components/Upload/Upload';
 import "./CommentList.scss"
+import { formatTime } from "@/utils";
 
 const { Title, Paragraph, Text, Link } = Typography;
 
@@ -16,7 +17,7 @@ export default function CommentList(props: {
       split={false}
       dataSource={props.data}
       rowKey="id"
-      locale={{emptyText: '暂无评论'}}
+      locale={{ emptyText: '暂无评论' }}
       renderItem={(comment, index) => {
 
         let commentText: string[] = [];
@@ -50,8 +51,15 @@ export default function CommentList(props: {
         return (
         <List.Item>
           <List.Item.Meta
-            avatar={<Avatar src={comment.user.avatar || ''} />}
-            title={<a href="https://ant.design">{comment.user.username}</a>}
+            avatar={<Avatar src={comment.user.avatar || ''} style={{ marginTop: 8 }} />}
+            title={<Space size={'middle'}>
+              <Text>
+              {comment.user.username}
+              </Text>
+              <Text type='secondary'>
+                {formatTime(comment.createdAt, 'MM月DD日 HH:mm')}
+              </Text>
+              </Space>}
             description={
               <Space direction='vertical'>
                 <div className="cl-content" dangerouslySetInnerHTML={{__html: commentText.join('')}}></div>
