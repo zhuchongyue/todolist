@@ -29,7 +29,7 @@ export interface ICreatedComment {
 }
 
 export async function createComment(data: ICreateComment) {
-  return request.post('/comment', data)
+  return request.post<{ id: string }>('/comment', data)
 }
 
 export async function delComment(id: string) {

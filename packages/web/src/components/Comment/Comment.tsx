@@ -35,7 +35,9 @@ export default function Comment() {
           </li>
       </ul>
       <CommentList data={comments} />
-      <CommentInput />
+      <CommentInput onSentComment={(comment) => {
+        setComments([...comments, comment])
+      }} />
     </div>
   )
 }

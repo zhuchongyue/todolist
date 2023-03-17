@@ -9,13 +9,15 @@ import { FileImageOutlined, LinkOutlined, SendOutlined } from '@ant-design/icons
 import CommentImg from './CommentImg';
 import UploadFile from '../Upload/Upload';
 import { curTaskSelector } from '@/store/task/taskSlice';
-import { CommentContentType, createComment } from '@/api';
+import { CommentContentType, createComment, ICreatedComment } from '@/api';
 
-export default function CommentInput() {
+export default function CommentInput(props: {
+  onSentComment: (comment: ICreatedComment) => void;
+}) {
 
   const curTask = useAppSelector(curTaskSelector)
   const users = useAppSelector(usersSelector)
-  const userId = useAppSelector(userSelector).id!
+  const user = useAppSelector(userSelector)
   const inputRef = useRef<HTMLDivElement>(null)
 
   let anchorNode: Node | null | undefined; // 当前的光标 所在的TextNode 
@@ -81,6 +83,11 @@ export default function CommentInput() {
     } else if (at.open) { //进入@文案提取
       const text = anchorNode?.nodeValue || '';
 
+      // 如果是输入中文, 并且不是空格键, 忽略输入
+      if (inputIME && text !== ' ') {
+        return;
+      }
+
       if (!/@/.test(text)) {
         resetFlagAt()
         return
@@ -128,10 +135,17 @@ export default function CommentInput() {
   const [imgList, setImgList] = useState<UploadFileType[]>([]);
   const [attaches, setAttaches] = useState<UploadFileType[]>([]);
 
+  // 发布后清空
+  const clearContent = () => {
+    inputRef.current!.innerHTML = '';
+    setImgList([])
+    setAttaches([])
+  }
+
   const handleSendComment = () => {
 
     const inputContents = handleInputContent();
-    const imgContents = imgList.map(img  => {
+    const imgContents = imgList.map(img => {
       return ({
         type: CommentContentType.IMG,
         content: img.response!.url! as string,
@@ -147,12 +161,20 @@ export default function CommentInput() {
     const contents = [...inputContents, ...imgContents, ...fileContents]
     const comment = {
       task: curTask!.id,
-      user: userId,
+      user: user.id,
       contents
     }
     // @ts-ignore
-    createComment(comment)
+    createComment(comment).then(res => {
+      if (res.data.id) {
+        clearContent()
+        // @ts-ignore
+        props.onSentComment(Object.assign(comment, { id: res.data.id, user }))
+      }
+    })
   }
+
+  let inputIME = false; // 中文输入
 
   return (
     <div className='ci'>
@@ -163,6 +185,12 @@ export default function CommentInput() {
         ref={inputRef} className='ci-input'
         contentEditable placeholder="输入评论"
         onKeyUp={e => handleKeyup(e)}
+        onCompositionStart={() => {
+          inputIME = true;
+        }}
+        onCompositionEnd={() => {
+          inputIME = false;
+        }}
       >
       </div>
       <div className='ci-files'>
@@ -175,11 +203,11 @@ export default function CommentInput() {
         <Space split={<Divider type="vertical" />}>
           <Space>
             <Tooltip title="上传图片">
-            <FileImageOutlined style={{ fontSize: 20 }} onClick={() =>  {
-              if (uploadImgBtnRef.current) {
-                uploadImgBtnRef.current.click()
-              }
-            }} />
+              <FileImageOutlined style={{ fontSize: 20 }} onClick={() => {
+                if (uploadImgBtnRef.current) {
+                  uploadImgBtnRef.current.click()
+                }
+              }} />
             </Tooltip>
             <Tooltip title="添加附件">
               <LinkOutlined style={{ fontSize: 20 }} onClick={() => {

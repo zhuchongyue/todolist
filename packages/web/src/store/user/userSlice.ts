@@ -7,7 +7,6 @@ export interface IUser {
   username: string;
   avatar: string;
   bio: string;
-  status: number;
   token?: string;
   position?: string;
 }
@@ -18,6 +17,7 @@ export interface IUserState {
   token?: string;
   avatar?: string;
   users?: IUser[];
+  bio?: string;
 }
 
 export const TOKEN_KEY = 'td_token'
